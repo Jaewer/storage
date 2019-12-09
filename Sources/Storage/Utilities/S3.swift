@@ -14,13 +14,14 @@ public struct Region {
   public static var euWest2: Region = .init(code: "eu-west-2")
   public static var euWest3: Region = .init(code: "eu-west-3")
   public static var euCentral1: Region = .init(code: "eu-central-1")
+  public static var euNorth1: Region = .init(code: "eu-north-1")
   public static var apSouth1: Region = .init(code: "ap-south-1")
   public static var apSoutheast1: Region = .init(code: "ap-southeast-1")
   public static var apSoutheast2: Region = .init(code: "ap-southeast-2")
   public static var apNortheast1: Region = .init(code: "ap-northeast-1")
   public static var apNortheast2: Region = .init(code: "ap-northeast-2")
   public static var saEast1: Region = .init(code: "sa-east-1")
-
+    
   public init(code: String) {
     self.code = code 
   }
