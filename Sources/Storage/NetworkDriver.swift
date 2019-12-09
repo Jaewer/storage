@@ -119,7 +119,7 @@ public final class S3Driver: NetworkDriver {
 
     public func delete(path: String, on container: Container) throws -> Future<Void> {
         return try s3.delete(path: path, on: container).map { res in
-            guard res.http.status == .ok else {
+            guard res.http.status == .noContent else {
                 throw Abort(.internalServerError, reason: res.http.body.description)
             }
             
