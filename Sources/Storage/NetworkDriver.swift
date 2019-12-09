@@ -7,7 +7,7 @@ public protocol NetworkDriver: Service {
 
     @discardableResult
     func upload(entity: inout FileEntity, on container: Container) throws -> Future<String>
-    func get(path: String, on container: Container) throws -> Future<[UInt8]>
+    func get(path: String, on container: Container) throws -> Future<Data>
     func delete(path: String, on container: Container) throws -> Future<Void>
 }
 
@@ -107,8 +107,14 @@ public final class S3Driver: NetworkDriver {
         }
     }
 
-    public func get(path: String, on container: Container) throws -> Future<[UInt8]> {
-        return container.future([])
+    public func get(path: String, on container: Container) throws -> Future<Data> {
+        return try s3.download(path: path, on: container).flatMap { res in
+            guard res.http.status == .ok else {
+                throw Abort(.internalServerError, reason: res.http.body.description)
+            }
+            
+            return res.http.body.consumeData(on: container)
+        }
     }
 
     public func delete(path: String, on container: Container) throws -> Future<Void> {

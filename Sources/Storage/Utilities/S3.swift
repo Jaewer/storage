@@ -234,7 +234,7 @@ extension AWSSignatureV4 {
      */
     public func sign(
         payload: Payload = .none,
-        contentType: String,
+        contentType: String?,
         method: Method = .get,
         path: String,
         query: String? = nil,
@@ -281,11 +281,14 @@ extension AWSSignatureV4 {
 
         var requestHeaders: [String: String] = [
             "X-Amz-Date": amzDate,
-            "Content-Type": contentType,
             "x-amz-content-sha256": payloadHash,
             "Authorization": authorizationHeader,
             "Host": host
         ]
+        
+        if let contentType = contentType {
+            requestHeaders["Content-Type"] = contentType
+        }
 
         headers.forEach { key, value in
             requestHeaders[key] = value
@@ -350,6 +353,35 @@ public struct S3: Service {
         req.http.method = .PUT
         req.http.headers = headers
         req.http.body = HTTPBody(data: bytes)
+        req.http.url = url
+        return client.send(req)
+    }
+    
+    public func download(
+        path: String,
+        on container: Container
+    ) throws -> Future<Response> {
+        guard let url = URL(string: generateURL(for: path)) else {
+            throw Error.invalidPath
+        }
+
+        let signedHeaders = try signer.sign(
+            payload: .none,
+            contentType: nil,
+            method: .put,
+            path: path,
+            headers: [:]
+        )
+
+        var headers: HTTPHeaders = [:]
+        signedHeaders.forEach {
+            headers.add(name: $0.key, value: $0.value)
+        }
+
+        let client = try container.client()
+        let req = Request(using: container)
+        req.http.method = .GET
+        req.http.headers = headers
         req.http.url = url
         return client.send(req)
     }
