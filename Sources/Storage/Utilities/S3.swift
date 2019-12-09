@@ -368,7 +368,7 @@ public struct S3: Service {
         let signedHeaders = try signer.sign(
             payload: .none,
             contentType: nil,
-            method: .put,
+            method: .get,
             path: path,
             headers: [:]
         )
