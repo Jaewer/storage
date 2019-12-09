@@ -19,7 +19,7 @@ public final class S3Driver: NetworkDriver {
     }
 
     public var pathBuilder: PathBuilder
-    var s3: S3
+    public var s3: S3
 
     public init(
         bucket: String,
