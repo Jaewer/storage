@@ -116,6 +116,12 @@ public final class S3Driver: NetworkDriver {
             return res.http.body.consumeData(on: container)
         }
     }
+    
+    public func objectExists(path: String, on container: Container) throws -> Future<Bool> {
+        return try s3.getObjectMetaData(path: path, on: container).map { res -> Bool in
+            return res.http.status == .ok ? true : false
+        }
+    }
 
     public func delete(path: String, on container: Container) throws -> Future<Void> {
         return try s3.delete(path: path, on: container).map { res in

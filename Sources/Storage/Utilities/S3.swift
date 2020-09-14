@@ -91,6 +91,7 @@ public struct AWSSignatureV4 {
         case get = "GET"
         case post = "POST"
         case put = "PUT"
+        case head = "HEAD"
     }
 
     let service: String
@@ -381,6 +382,35 @@ public struct S3: Service {
         let client = try container.client()
         let req = Request(using: container)
         req.http.method = .GET
+        req.http.headers = headers
+        req.http.url = url
+        return client.send(req)
+    }
+    
+    public func getObjectMetaData(
+        path: String,
+        on container: Container
+    ) throws -> Future<Response> {
+        guard let url = URL(string: generateURL(for: path)) else {
+            throw Error.invalidPath
+        }
+        
+        let signedHeaders = try signer.sign(
+            payload: .none,
+            contentType: nil,
+            method: .head,
+            path: path,
+            headers: [:]
+        )
+        
+        var headers: HTTPHeaders = [:]
+        signedHeaders.forEach {
+            headers.add(name: $0.key, value: $0.value)
+        }
+        
+        let client = try container.client()
+        let req = Request(using: container)
+        req.http.method = .HEAD
         req.http.headers = headers
         req.http.url = url
         return client.send(req)
