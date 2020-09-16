@@ -403,6 +403,7 @@ public struct S3: Service {
             headers: [:]
         )
         
+        
         var headers: HTTPHeaders = [:]
         signedHeaders.forEach {
             headers.add(name: $0.key, value: $0.value)
